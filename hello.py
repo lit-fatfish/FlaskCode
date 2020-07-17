@@ -50,11 +50,22 @@ def remove_queue(r,queue_name, callback_obj):
 @app.route('/<name>')
 def manager(name=None):
     r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    # 获取到完成队列的列表
+    data = r.zrange("finish_queue",0,10)
+    print(data)
     id_str = read_queue(r,"finish_queue")
     dic = {}
     dic["data_id"] = id_str
-    return render_template('manager.html', name=name, dic=dic)
+    dics = {
+        "hello":"hello",
+        "world":"world"
+    }
+    return render_template('manager.html', name=name, dic=dic, data=data,dics=dics)
 
+@app.route('/test', methods=['POST'])
+def test():
+    print("---: ", request.form)
+    return jsonify({"a":1})
 
 
 if __name__ == '__main__':
