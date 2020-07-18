@@ -46,27 +46,43 @@ def remove_queue(r,queue_name, callback_obj):
 
 
 
-@app.route('/')
-@app.route('/<name>')
-def manager(name=None):
+# @app.route('/')
+# @app.route('/<name>')
+# def manager(name=None):
+#     r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+#     # 获取到完成队列的列表
+#     data = r.zrange("finish_queue",0,10)
+#     print(data)
+#     id_str = read_queue(r,"finish_queue")
+#     dic = {}
+#     dic["data_id"] = id_str
+#     dics = {
+#         "hello":"hello",
+#         "world":"world"
+#     }
+#     return render_template('manager.html', name=name, dic=dic, data=data,dics=dics)
+# @app.route('/')
+# def home():
+#     return  render_template('manager.html')
+
+@app.route('/test', methods=['GET', 'POST'])
+def test():
     r = redis.Redis(host='localhost', port=6379, decode_responses=True)
     # 获取到完成队列的列表
     data = r.zrange("finish_queue",0,10)
-    print(data)
-    id_str = read_queue(r,"finish_queue")
-    dic = {}
-    dic["data_id"] = id_str
-    dics = {
-        "hello":"hello",
-        "world":"world"
-    }
-    return render_template('manager.html', name=name, dic=dic, data=data,dics=dics)
+    print("---: ", request.form) # 获取到post携带的参数
+    return jsonify(data)    # 返回10个成功的列表
 
-@app.route('/test', methods=['POST'])
-def test():
-    print("---: ", request.form)
-    return jsonify({"a":1})
 
+@app.route('/')
+@app.route('/status',methods=['GET','POST'])
+def status():
+    r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    range_list = r.zrange("status_queue", 0, -1)
+    # set_del_task = json.loads(range_list)
+    # data = read_queue(r,"status_queue")
+
+    return jsonify(range_list)
 
 if __name__ == '__main__':
     r = redis.Redis(host='localhost', port=6379, decode_responses=True)
