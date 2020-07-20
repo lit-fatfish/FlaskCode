@@ -1,15 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script type="text/javascript" src="/static/axios.min.js"></script>
+
+    <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
     <link rel="stylesheet" href="/static/bootstrap-3.3.7/css/bootstrap.min.css">
     <script type="text/javascript" src="/static/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" src="/static/bootstrap-3.3.7/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+
+
 </head>
 <body>
-    <a href="http://www.baidu.com" class="btn-danger">aaa</a>
-        <button class="btn btn-primary" type="button" >（首选项）Primary</button>
-
+    <a class="btn btn-primary"href="">111</a>
+    <div id="app">
+        <h1>site : {{ site }}</h1>
+        <h1>url : {{ url }}</h1>
+        <h1>{{ details() }}</h1>
+    </div>
 </body>
+
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                site:"我的博客",
+                url: "www.cssblog.top",
+                alexa: '10000'
+            },
+            methods: {
+                details: function () {
+                    axios.post("http://127.0.0.1:5000/status").then((data) => {
+                    console.log("data: ", data)
+                    self.data = data.data
+                    return this.site + self.data
+
+                    })
+                    .catch((err) => {
+                        console.log("err: ", err)
+                    })
+                }
+            }
+
+        })
+    </script>
 </html>

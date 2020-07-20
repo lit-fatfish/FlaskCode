@@ -39,6 +39,15 @@ def read_queue(r,queue_name):
         set_del_task = json.loads(set_del_task)
         return set_del_task
 
+def read_all_queue(r,queue_name,num):
+    range_list = r.zrange(queue_name, 0, num)
+    list = []
+    if range_list:
+        for data in range_list:
+        # set_del_task = range_list[0]
+            set_del_task = json.loads(data)
+            list.append(set_del_task)
+        return list
 
 def remove_queue(r,queue_name, callback_obj):
     callback_obj = json.dumps(callback_obj)
@@ -65,26 +74,61 @@ def remove_queue(r,queue_name, callback_obj):
 # def home():
 #     return  render_template('manager.html')
 
-@app.route('/test', methods=['GET', 'POST'])
-def test():
-    r = redis.Redis(host='localhost', port=6379, decode_responses=True)
-    # 获取到完成队列的列表
-    data = r.zrange("finish_queue",0,10)
-    print("---: ", request.form) # 获取到post携带的参数
-    return jsonify(data)    # 返回10个成功的列表
-
-
 @app.route('/')
+def home():
+    return render_template('test1.html')
+
+
+@app.route('/info', methods=['GET', 'POST'])
+def info():
+    r1 = redis.StrictRedis(host='localhost', port=6379, db=8, decode_responses=True)
+    # r = redis.Redis(host='localhost', port=6379,db=8, decode_responses=True)
+    # 获取到完成队列的列表
+    # datas = r1.zrange("finish_queue",0,10)
+
+    datas = read_all_queue(r,"finish_queue",2)
+    print(datas)
+    list = []
+    for data in datas:
+        temp = get_values(r, data)
+        list.append(temp)
+    # print(type(list))
+    # print(list)
+    # datas = str(list)
+    # datas = json.dumps(datas)
+    # print(type(datas))
+    # print(datas)
+    # datas = read_queue(r,"finish_queue")
+    # datas = get_values(r, datas)
+
+    datas = list
+
+    print("---: ", request.form) # 获取到post携带的参数
+    return jsonify(datas)    # 返回10个成功的列表
+
+
 @app.route('/status',methods=['GET','POST'])
 def status():
-    r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    r = redis.StrictRedis(host='localhost', port=6379, db=8, decode_responses=True)
+
+    # r = redis.Redis(host='localhost', port=6379, db=8, decode_responses=True)
     range_list = r.zrange("status_queue", 0, -1)
     # set_del_task = json.loads(range_list)
     # data = read_queue(r,"status_queue")
+    range_list.append('hello world')
 
-    return jsonify(range_list)
+    datas = read_all_queue(r, "status_queue", 2)
+    list = []
+    for data in datas:
+        temp = get_values(r, data)
+        list.append(temp)
+
+    return jsonify(list)
 
 if __name__ == '__main__':
-    r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    r = redis.StrictRedis(host='localhost', port=6379, db=8, decode_responses=True)
+
+    # r = redis.Redis(host='localhost', port=6379, db=8, decode_responses=True)
+
     app.run()
 

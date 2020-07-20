@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>后台管理系统</title>
+
+    <script type="text/javascript" src="/static/axios.min.js"></script>
+    <script type="text/javascript" src="/static/vue.min.js"></script>
+</head>
+<body>
+    <div>
+        <a href="http://127.0.0.1:5000/status" methods="POST">获取完成队列列表</a> <br>
+        <a href="http://127.0.0.1:5000/info" methods="POST">获取完成信息</a>
+    </div>
+{% raw %}
+
+
+    <div id="app">
+        <div style="height: 100px">{{ todos }}</div>
+        <li>
+            <ul>
+
+            </ul>
+        </li>
+                <span></span>
+
+        <ul>
+            <li v-for="name in todos">
+                {{ name.cameracode }}
+                {{ name.data_id }}
+            </li>
+        </ul>
+    </div>
+{% endraw %}
+    <script>
+        new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    //visible: false,
+                    todos: [{
+                        data:[
+                             {
+                                "data_id": "a63f7686bda145978dfa5114dd53525b",
+                                "fail_num": 0,
+                                "filename": ".\\video\\2020-07-20\\a63f7686bda145978dfa5114dd53525b.mp4",
+                                "resultAddress": "https://power.anlly.net/customer/api/v1/callback",
+                                "time_start": "2020-07-20 16:47:03",
+                                "url": "http://192.168.31.83/gd/Handle.php"
+                            }
+                        ]
+                    }],
+                    // 赋初值
+                    todos: []
+                }
+            },
+
+            mounted() {
+                // 进入页面自动调用此函数
+                const self = this
+                axios.post("/info").then((data) => {
+                    console.log("data: ", data)
+                    self.todos = data.data
+
+                    console.log("data1: ", data.data[0])
+                })
+                .catch((err) => {
+                    console.log("err: ", err)
+                })
+            }
+        })
+
+    </script>
+</body>
+</html>

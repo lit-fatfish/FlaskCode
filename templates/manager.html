@@ -15,7 +15,7 @@
         <a href="http://127.0.0.1:5000/test" methods="POST">获取完成队列列表</a>
     </div>
     <div id="app">
-
+        <span>{{ name }}</span>
         <span>{{ data }}</span>
 
     </div>
@@ -25,7 +25,9 @@
             data: function () {
                 return {
                     visible: false,
-                    data: {}
+                    data: {
+                        name:'aclie'
+                    }
                 }
             },
             
