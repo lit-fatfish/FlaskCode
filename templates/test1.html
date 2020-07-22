@@ -71,7 +71,8 @@
                     <td>{{ todo.cameracode }}</td>
                     <td>{{ todo.resultAddress }}</td>
                     <td>{{ todo.fail_num }}</td>
-                    <td v-if="title==='完成列表'"><a @click="upload(todo.data_id)" class="btn btn-success" href="#">重新上传</a></td>
+                    <td v-if="title==='完成列表'"><a @click="upload(todo.data_id)" class="btn btn-success" href="#">重新上传</a>
+                    </td>
 
                 </tr>
             </table>
@@ -117,14 +118,31 @@
                 <input v-model="numbers" type="text" class="form-control" id="numbers" placeholder="总路数">
                 <label for="times">切片总时间</label>
                 <input v-model="times" type="text" class="form-control" id="times" placeholder="总路数切片需要的时间">
-
-
-            </div>
-            <div>
                 <label>视频源地址</label>
                 <textarea v-model="RTMP_list" style="overflow-x: auto;" class="form-control" rows="3"
                           placeholder="视频源地址格式rtmp_url"></textarea>
+
             </div>
+            <br>
+
+            <div class="form-group">
+                <label for="expire">过期时间(天)</label>
+                <input v-model="expire" type="text" class="form-control" id="expire" placeholder="过期时间">
+                <label for="timing">间隔时间(s)</label>
+                <input v-model="timing" type="text" class="form-control" id="timing" placeholder="每隔多长清理文件">
+
+            </div>
+            <br>
+
+            <div class="form-group">
+                <label for="redis_host">Redis主机</label>
+                <input v-model="redis_host" type="text" class="form-control" id="redis_host" placeholder="Redis主机">
+                <label for="redis_pwd">Redis主机密码</label>
+                <input v-model="redis_pwd" type="password" class="form-control" id="redis_pwd" placeholder="Redis主机密码">
+                <label for="redis_db">Redis数据库</label>
+                <input v-model="redis_db" type="text" class="form-control" id="redis_db" placeholder="Redis数据库(0)">
+            </div>
+
             <div class="checkbox">
                 <label>
                     <input v-model="flag" type="checkbox"> 启动程序
@@ -160,6 +178,11 @@
                 numbers: '',
                 times: '',
                 flag: true,
+                expire: '',
+                timing: '',
+                redis_host: '',
+                redis_pwd: '',
+                redis_db: '',
 
                 seen_finish: true,
                 seen_status: false,
@@ -195,11 +218,13 @@
             const self = this
             axios.post("/info").then((data) => {
                 console.log("data: ", data)
+
                 self.todos = data.data
                 self.seen_finish = true
                 self.seen_status = false
                 self.seen_form = false
                 console.log("data: ", data.data[0])
+
             })
                 .catch((err) => {
                     console.log("err: ", err)
@@ -239,6 +264,12 @@
                         self.cut_time = data.data['cut_time'],
                         self.times = data.data['times'],
                         self.RTMP_list = data.data['RTMP_list'],
+                        self.expire = data.data['expire'],
+                        self.timing = data.data['timing'],
+                        self.redis_host = data.data['redis_host'],
+                        self.redis_pwd = data.data['redis_pwd'],
+                        self.redis_db = data.data['redis_db'],
+
 
 //                        self.todos= data.data
                         self.seen_finish = false
@@ -260,6 +291,11 @@
                     "cut_time": self.cut_time,
                     "times": self.times,
                     "RTMP_list": self.RTMP_list,
+                    "expire": self.expire,
+                    "timing": self.timing,
+                    "redis_host": self.redis_host,
+                    "redis_pwd": self.redis_pwd,
+                    "redis_db": self.redis_db,
                 }).then((data) => {
                     console.log("data: ", data)
                     self.upload_url = data.data['url']
@@ -270,6 +306,11 @@
                     self.times = data.data['times']
                     self.RTMP_list = data.data['RTMP_list']
                     self.title = ''
+                    self.expire = data.data['expire']
+                    self.timing = data.data['timing']
+                    self.redis_host = data.data['redis_host']
+                    self.redis_pwd = data.data['redis_pwd']
+                    self.redis_db = data.data['redis_db']
 //                        self.todos= data.data
                     self.seen_finish = false
                     self.seen_status = false
@@ -313,6 +354,7 @@
                 const self = this
                 axios.post("/fail_list").then((data) => {
                     console.log("data: ", data)
+
                     self.todos = data.data
                     self.seen_finish = true
                     self.seen_status = false
@@ -324,21 +366,19 @@
                         console.log("err: ", err)
                     })
             },
-            upload: function(id){
+            upload: function (id) {
                 const self = this
                 console.log(id) //视频id
-                /*axios.post("/upload").then((data) => {
+                axios.post("/upload", {
+                    "data_id": id
+                }).then((data) => {
                     console.log("data: ", data)
-                    self.todos = data.data
-                    self.seen_finish = true
-                    self.seen_status = false
-                    self.seen_form = false
-                    self.title = '失败列表'
-                    console.log("data: ", data.data[0])
+                    console.log("data: ", data.data['success'])
+                    alert("success=" + data.data['success'] + "  fail=" + data.data['fail'])
                 })
-                .catch((err) => {
-                    console.log("err: ", err)
-                })*/
+                    .catch((err) => {
+                        console.log("err: ", err)
+                    })
             }
         }
     })

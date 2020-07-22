@@ -1,6 +1,7 @@
 import os
 
 import redis
+import requests
 from flask import Flask, render_template, request, jsonify
 import json
 import time
@@ -136,7 +137,56 @@ def fail_list():
         datas = list
 
         print("---: ", request.form) # 获取到post携带的参数
+
     return jsonify(datas)    # 返回10个成功的列表
+
+
+@app.route('/upload', methods=['GET', 'POST'])
+def uoload():
+    # 获取上传到这里的文件名，然后读取键值对，去上传文件，并返回结果
+    # 一个开始尝试
+    # 通过文件名获取到字典，赋值带着参数去post，post结果考虑，
+    # 首先post失败的才能进行重新上传，
+    # post结果有成功和不成功，不成功的话就告诉不成功
+    # post成功需要把失败队列里面的内容删掉，然后加成功队列，键值对不用更改
+    # 关于状态，和失败次数，post成功后需要重新记录失败次数，还是不用
+    # 后台上传不修改任何参数，最多修改在那个队列
+    datas = {
+        "success":0,
+        "fail":0
+    }
+    dic = request.get_json()
+    video_id = dic['data_id']
+    dic = get_values(r,video_id)
+    if dic:
+        filename = dic["filename"]
+        # fail_num = dic["fail_num"]
+        url = dic["url"]
+        formdata = {
+            "videoid": dic["data_id"],
+            "cameracode": dic["cameracode"],
+            "resultAddress": dic["resultAddress"],
+            "time_start": dic["time_start"]  # 需要校准
+        }
+        files = {'fileData': open(filename, 'rb')}
+
+        response = requests.post(url, data=formdata, files=files)
+        if response.status_code == 200:
+            json_result = response.json()
+            # 这里的data_id 采用从redis中读取文件名，因为有可能返回的json文件无法获得文件名
+            if json_result['error_code'] == 0:
+                # 加入成功队列
+                remove_queue(r, "fail_queue", video_id)
+                write_queue(r, "finish_queue", video_id)
+                datas['success'] += 1
+            else:
+                datas['fail'] += 1
+
+        else:
+            # 服务器返回的状态码不对，比如404之类的
+            datas['fail'] += 1
+    return jsonify(datas)    #
+
 
 @app.route('/queue_num', methods=['GET', 'POST'])
 def queue_num():
@@ -172,19 +222,11 @@ def config_file():
         dic = dic
         print(dic)
         # 写入data文件
-        with open('data.json', 'w') as f:
+        filename = os.path.join('D:', '\\Code', 'FlaskCode', 'config.json')
+        with open(filename, 'w') as f:
             json.dump(dic, f)
-        # 写入文件
-
+        # 写入配置文件成功时，应该删除当前的状态队列
     #print(os.getcwd()) # 打印当前路径 D:\MyProgram\PyCharm 2020.1.3\jbr\bin
-
-    # print(filename)
-    # try:
-    #     with open(filename) as f:
-    #         jsonStr = json.load(f)
-    #         return json.dumps(jsonStr)
-    # except Exception as e:
-    #     return jsonify({"code": "异常", "message": "{}".format(e)})
 
     return jsonify(dic)
 
