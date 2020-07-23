@@ -85,7 +85,7 @@ def read_jsonfile(filename):
 
 @app.route('/')
 def home():
-    return render_template('test1.html')
+    return render_template('test3.html')
 
 
 
@@ -223,9 +223,11 @@ def config_file():
         print(dic)
         # 写入data文件
         filename = os.path.join('D:', '\\Code', 'FlaskCode', 'config.json')
-        with open(filename, 'w') as f:
-            json.dump(dic, f)
-        # 写入配置文件成功时，应该删除当前的状态队列
+        if os.path.exists(filename):
+            with open(filename, 'w') as f:
+                json.dump(dic, f)
+            # 写入配置文件成功时，应该删除当前的状态队列，删除整个键
+            r.delete("status") #测试成功，到时候修改成为status_queue
     #print(os.getcwd()) # 打印当前路径 D:\MyProgram\PyCharm 2020.1.3\jbr\bin
 
     return jsonify(dic)

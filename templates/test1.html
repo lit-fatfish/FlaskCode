@@ -18,26 +18,37 @@
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
 </head>
 <body>
+
 {% raw %}
 
 
+<div class="container">
+
+
+
+
+
 <div id="app">
-    <!-- Single button -->
     <div>
-        <div class="btn-group ">
-            <button type="button" class="btn btn-primary dropdown-toggle " data-toggle="dropdown" aria-haspopup="true"
-                    aria-expanded="false">
-                队列状态 <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a href="#" @click="finish_list">完成列表</a></li>
-                <li><a href="#" @click="wait_list">等待列表</a></li>
-                <li><a href="#" @click="fail_list">失败列表</a></li>
-            </ul>
-        </div>
-        <button class="btn btn-primary" @click="show_status" type="button">显示状态</button>
-        <button class="btn btn-primary" @click="config_file" type="button">设置配置文件</button>
+        <ul class="nav nav-tabs nav-justified">
+            <li v-bind:class="{'active': queue_active}" role="presentation" class="dropdown ">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                   aria-expanded="false">
+                    队列状态 <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#" @click="finish_list">完成列表</a></li>
+                    <li><a href="#" @click="wait_list">等待列表</a></li>
+                    <li><a href="#" @click="fail_list">失败列表</a></li>
+                </ul>
+            </li>
+            <li v-bind:class="{'active': status_active}" role="presentation"><a @click="show_status"  href="#">显示状态</a></li>
+            <li v-bind:class="{'active': config_active}" role="presentation"><a @click="config_file" href="#">设置配置文件</a></li>
+        </ul>
+
     </div>
+    <!-- Single button -->
+
 
     <br>
     <!-- <div style="height: 150px">{{ todos }}</div> -->
@@ -120,7 +131,8 @@
                 <input v-model="times" type="text" class="form-control" id="times" placeholder="总路数切片需要的时间">
                 <label>视频源地址</label>
                 <textarea v-model="RTMP_list" style="overflow-x: auto;" class="form-control" rows="3"
-                          placeholder="视频源地址格式rtmp_url"></textarea>
+                          placeholder="视频源地址格式rtmp_url">
+                </textarea>
 
             </div>
             <br>
@@ -153,6 +165,11 @@
         </form>
     </div>
 </div>
+
+      </div>
+    </div>
+</div>
+
 {% endraw %}
 <script>
     new Vue({
@@ -173,7 +190,7 @@
                 upload_url: '',
                 resultAddress: '',
                 cameracode: '',
-                RTMP_list: [],
+                RTMP_list: '',
                 cut_time: '',
                 numbers: '',
                 times: '',
@@ -187,6 +204,10 @@
                 seen_finish: true,
                 seen_status: false,
                 seen_form: false,
+                queue_active:true,
+                status_active:false,
+                config_active:false,
+                use:true,
                 todos: [
                     {
                         "data_id": "",
@@ -226,16 +247,17 @@
                 console.log("data: ", data.data[0])
 
             })
-                .catch((err) => {
-                    console.log("err: ", err)
-                })
+            .catch((err) => {
+                console.log("err: ", err)
+            })
+            // 请求队列数
             axios.post("/queue_num").then((data) => {
                 console.log("data: ", data)
                 self.queue_num = data.data
             })
-                .catch((err) => {
-                    console.log("err: ", err)
-                })
+            .catch((err) => {
+                console.log("err: ", err)
+            })
 
         },
         methods: {
@@ -248,41 +270,65 @@
                     self.seen_status = true
                     self.seen_form = false
                     self.title = '视频源状态'
+                    self.queue_active = false
+                    self.status_active = true
+                    self.config_file = false
                 })
-                    .catch((err) => {
-                        console.log("err: ", err)
-                    })
+                .catch((err) => {
+                    console.log("err: ", err)
+                })
             },
             config_file: function () {
                 const self = this
+                console.log("print hello ")
                 axios.get("http://127.0.0.1:5000/config_file").then((data) => {
                     console.log("data: ", data)
                     self.upload_url = data.data['url']
-                    self.numbers = data.data['numbers']
-                    self.resultAddress = data.data['resultAddress'],
-                        self.cameracode = data.data['cameracode'],
-                        self.cut_time = data.data['cut_time'],
-                        self.times = data.data['times'],
-                        self.RTMP_list = data.data['RTMP_list'],
-                        self.expire = data.data['expire'],
-                        self.timing = data.data['timing'],
-                        self.redis_host = data.data['redis_host'],
-                        self.redis_pwd = data.data['redis_pwd'],
-                        self.redis_db = data.data['redis_db'],
 
+
+                    self.resultAddress = data.data['resultAddress'],
+                    self.cameracode = data.data['cameracode'],
+                    self.cut_time = data.data['cut_time'],
+                    self.times = data.data['times'],
+
+                    self.expire = data.data['expire'],
+                    self.timing = data.data['timing'],
+                    self.redis_host = data.data['redis_host'],
+                    self.redis_pwd = data.data['redis_pwd'],
+                    self.redis_db = data.data['redis_db'],
+                    self.flag = data.data['flag']
+                    self.RTMP_list = data.data['RTMP_list'],
+                    self.numbers = self.RTMP_list.length
 
 //                        self.todos= data.data
-                        self.seen_finish = false
+                    self.seen_finish = false
                     self.seen_status = false
                     self.seen_form = true
                     self.title = ''
-                })
-                    .catch((err) => {
-                        console.log("err: ", err)
+                    self.queue_active = false
+                    self.status_active = false
+                    self.config_file = true
+                   
+                    // 数组转字符串，并换行
+                    var str = ""
+                    $.each(self.RTMP_list,function(i,val){
+                        if((i+1) !== self.RTMP_list.length)
+                            val += "\n"
+                        str += val
                     })
+                    self.RTMP_list = str
+                    console.log(str)
+                })
+                .catch((err) => {
+                    console.log("err: ", err)
+                })
             },
             submit_config: function () {
                 const self = this
+                // 在post之前需要转换成字符串的self.RTMP转成数组
+                var stringResult = self.RTMP_list.split('\n');
+                self.RTMP_list = stringResult
+                
                 axios.post("http://127.0.0.1:5000/config_file", {
                     "url": self.upload_url,
                     "numbers": self.numbers,
@@ -296,15 +342,17 @@
                     "redis_host": self.redis_host,
                     "redis_pwd": self.redis_pwd,
                     "redis_db": self.redis_db,
+                    "flag":self.flag,
                 }).then((data) => {
                     console.log("data: ", data)
                     self.upload_url = data.data['url']
-                    self.numbers = data.data['numbers']
+
                     self.resultAddress = data.data['resultAddress']
                     self.cameracode = data.data['cameracode']
                     self.cut_time = data.data['cut_time']
                     self.times = data.data['times']
                     self.RTMP_list = data.data['RTMP_list']
+                    self.numbers = self.RTMP_list.length
                     self.title = ''
                     self.expire = data.data['expire']
                     self.timing = data.data['timing']
@@ -315,10 +363,21 @@
                     self.seen_finish = false
                     self.seen_status = false
                     self.seen_form = true
-                })
-                    .catch((err) => {
-                        console.log("err: ", err)
+                    self.queue_active = false
+                    self.status_active = false
+                    self.config_file = true
+
+                    var str = ""
+                    $.each(self.RTMP_list,function(i,val){
+                        if((i+1) !== self.RTMP_list.length)
+                            val += "\n"
+                        str += val
                     })
+                    self.RTMP_list = str
+                })
+                .catch((err) => {
+                    console.log("err: ", err)
+                })
             },
             finish_list: function () {
                 const self = this
@@ -329,11 +388,14 @@
                     self.seen_status = false
                     self.seen_form = false
                     self.title = '完成列表'
+                    self.queue_active = true
+                    self.status_active = false
+                    self.config_file = false
                     console.log("data: ", data.data[0])
                 })
-                    .catch((err) => {
-                        console.log("err: ", err)
-                    })
+                .catch((err) => {
+                    console.log("err: ", err)
+                })
             },
             wait_list: function () {
                 const self = this
@@ -344,6 +406,9 @@
                     self.seen_status = false
                     self.seen_form = false
                     self.title = '等待列表'
+                    self.queue_active = true
+                    self.status_active = false
+                    self.config_file = false
                     console.log("data: ", data.data[0])
                 })
                     .catch((err) => {
@@ -360,6 +425,9 @@
                     self.seen_status = false
                     self.seen_form = false
                     self.title = '失败列表'
+                    self.queue_active = true
+                    self.status_active = false
+                    self.config_file = false
                     console.log("data: ", data.data[0])
                 })
                     .catch((err) => {
@@ -376,9 +444,9 @@
                     console.log("data: ", data.data['success'])
                     alert("success=" + data.data['success'] + "  fail=" + data.data['fail'])
                 })
-                    .catch((err) => {
-                        console.log("err: ", err)
-                    })
+                .catch((err) => {
+                    console.log("err: ", err)
+                })
             }
         }
     })
