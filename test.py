@@ -14,12 +14,12 @@ def read_jsonfile(filename):
 
 
 
-print(os.path.exists('config.json'))
+print(os.path.exists('static/config.json'))
 
-with open('config.json', 'r', encoding='utf8') as fp:
+with open('static/config.json', 'r', encoding='utf8') as fp:
     json_data = json.load(fp)
 
     print(json_data)
 
-print(read_jsonfile('config.json'))
+print(read_jsonfile('static/config.json'))
 

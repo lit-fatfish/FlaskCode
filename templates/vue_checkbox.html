@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+       <!-- 引入样式 -->
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.0/lib/index.css">
+ 
+     <!-- 引入组件 -->
+     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/vant@2.0/lib/vant.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <h4 style="color:red;">radio--v-model的使用，只有一种请空，都返回value值，本次不举例</h4>
+        <h1>checkbox--v-model的使用，两种情况</h1>
+        <h3>1,v-model对应的是数组时，返回的是checkbox的value值</h3>
+        <p style="color:red;font-size:14px">checkbox是通过value值区分的，如果value值相同，选中其中一个，另一个也被选中</p>
+        <input type="checkbox" v-model="testarr" value="测试多选1-value">测试多选1
+        <input type="checkbox" v-model="testarr" value="测试多选2-value">测试多选2
+        <input type="checkbox" v-model="testarr" value="测试多选3-value">测试多选3
+        <p>v-model的值是：{{testarr}}</p>
+        <h3>1,v-model对应的是Boolean时，返回的是checkbox的checked的boolean值</h3>
+        <p style="color:red;font-size:14px">checkbox是通过value值区分的，如果value值相同，选中其中一个，另一个也被选中</p>
+        <input type="checkbox" v-model="testarr1" value="测试多选4-value">测试多选4
+        <input type="checkbox" v-model="testarr1" value="测试多选5-value">测试多选5
+        <input type="checkbox" v-model="testarr1" value="测试多选6-value">测试多选6
+        <p>v-model的值是：{{testarr1}}</p>
+
+        <hr>
+        <h1>PS：测试vant的 checkbox</h1>
+        <h4>---单个checkbox</h4>
+        <van-checkbox shape="square" v-model="checked">复选框boolean类型model</van-checkbox>
+        <van-cell-group>
+            <van-field label="你选择的是:" v-model="checked" />
+        </van-cell-group>
+        <h4>---多个checkbox</h4>
+        <van-checkbox-group v-model="result">
+            <van-checkbox v-for="(item, index) in list" :key="item" :name="item">
+                复选框 {{ item }}
+            </van-checkbox>
+        </van-checkbox-group>
+        <van-cell-group>
+            <van-field label="你选择的是:" v-model="result" />
+        </van-cell-group>
+    </div>
+
+
+    <script>
+        var app = new Vue({
+            el: "#app",
+            data() {
+                return {
+                    testarr: [],
+                    testarr1: true,
+                    /*--vant data test--*/
+                    checked: true,
+                    list: ['a', 'b', 'c'],
+                    result: ['a', 'b']
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

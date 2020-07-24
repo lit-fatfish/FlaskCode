@@ -1,24 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <div v-text="{{ message }}"></div>
-    <div id="app">
-      {{ message }}
-    </div>
-    <script>
-        var app = new Vue({
-          el: '#app',
-          data: {
-            message: 'Hello Vue!'
-          }
-        })
 
-    </script>
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <div v-text="{{ message }}"></div>
+  <div id="app">
+    {{ message }}
+    <ul v-for="(item,index) in todos">
+      <li>{{ index }} {{ item.num }}</li>
+      <label>
+        {{index}}
+        <input v-model="check" type="checkbox" :value="index"> 启动程序
+      </label>
+    </ul>
+    <label>
+      <input v-model="check" type="checkbox" :value='"message"+num2'> 启动程序
+    </label>
+    <label>
+      <input v-model="check" type="checkbox" value="第二个测试"> 启动程序
+    </label>
+    {{ check }}
+  </div>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: 'Hello Vue!',
+        num2:"2",
+        todos: [{
+            "num": "num"
+          },
+          {
+            "num": "test"
+          },
+        ],
+        check: [],
+      }
+    })
+  </script>
 
 </body>
+
 </html>
